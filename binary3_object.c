@@ -286,6 +286,7 @@ int main(int argc, char *argv[])
 		if (distance < 0.0) {
 			fprintf(stderr,"Warning Ray %lu is furthern then the aperture"
 			 " back propagating to aperture\n", myRay.ray);
+			continue; // remove the rays are further than the object and back propagating to the object
 		}
 		myRay.pos = add(myRay.pos,mult(myRay.v,distance));
 		myRay.l = myRay.l + distance;

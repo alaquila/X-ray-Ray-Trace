@@ -215,7 +215,7 @@ int main(int argc, char *argv[])
                         //detector plane along propagation direction
                         distance = dot(sub(P0,myRay.pos),Normal)/dot(myRay.v,Normal);
 			if (distance < 0.0) continue;
-			if (dot(myRay.v,Normal) < 0.0) continue;
+			if (dot(myRay.v,Normal) > 0.0) continue;
 			myRay.pos = add(myRay.pos,mult(myRay.v,distance));
                   	myRay.l = myRay.l + distance;
 

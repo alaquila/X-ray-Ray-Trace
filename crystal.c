@@ -294,18 +294,15 @@ int main(int argc, char *argv[])
 		
 		if ( m >= 0.0 && m <= 1.0 && n >= 0.0 && n <= 1.0 ) {
 			//in crystal
- 			double MagG, Magkp, MagkG, elip_a, elip_b, elip_c, *d_rand, lambda1, lambda2;
+ 			double MagG, Magkp, MagkG, *d_rand, lambda1, lambda2;
 			Vector kp, G, kG, kGunitV, k1prime, k2prime, k1, k2;
 			Ray myRay1, myRay2;
 			Magkp = 2*PI/myRay.w;
 			kp = mult(myRay.v, Magkp);
 			MagG = (2*PI*sqrt(pow(mh,2)+pow(mk,2)+pow(ml,2))) / latticeConstant;
-			//fprintf(stderr,"MagG = %g\n",MagG); // TEST		
-			//fprintf(stderr,"Magkp = %g\n",Magkp); // TEST
 			G = mult(Normal,MagG);
       			kG = add(kp,G);
 			MagkG = magnitude(kG);	
-			//fprintf(stderr,"MagkG = %g\n",MagkG); // TEST
 
 			if ( MagkG > Magkp ) {			
 				myRay.i = 1.0; 
@@ -324,35 +321,20 @@ int main(int argc, char *argv[])
 				//NkG.z = magnitude(kG);
 			
 				//define ellipse
-				elip_a = Magkp/2;
-				elip_c = MagkG/2;
-				elip_b = sqrt(pow(elip_a,2) - pow(elip_c,2)); // only if p = 1 !!!
-				//fprintf(stderr,"elip = %g %g %g\n",elip_a,elip_b,elip_c); // TEST	
-
+				//elip_a = Magkp/2;
+				//elip_c = MagkG/2;
+				//elip_b = sqrt(pow(elip_a,2) - pow(elip_c,2)); // only if p = 1 !!! TEST
 								
 
 				// TODO: Here we need to rotate k1 and k2 in the primed system about the z-axis randomly by 2Pi
    				d_rand =  rand_double(R_DOUBLE,3);
 				double cos_theta = cos(2*PI*d_rand[0]);
 				double sin_theta = sin(2*PI*d_rand[0]);
-				//double p_min = (Magkp-MagkG)/(Magkp+MagkG);
-				//double p_max = (Magkp+MagkG)/(Magkp-MagkG);
-				//double min(a, b){
-				//	return (a<b)?a:b;
-				//}
-				//double max(a, b){
-                                //        return (a>b)?a:b;
-                                //}
-				pmin = fmax(pmin,(Magkp-MagkG)/(Magkp+MagkG)); // TEST
-				pmax = fmin(pmax,(Magkp+MagkG)/(Magkp-MagkG)); // TEST
-				//double delta = 2*atan(sqrt(pow(Magkp,2)-pow(MagkG,2))/(MagkG*(1-d_rand[1])));
-				//double delta = 2*atan((2*d_rand[1]-1)); //TEST
-				//double p = ((pow(Magkp,2)*(sqrt(pow(cos(delta),2)-1 - 2*(pow(MagkG,2)/pow(Magkp,2))*(cos(delta)-1)) - (cos(delta)-1)))/(pow(Magkp,2)-pow(MagkG,2)))-1;
-				//double F  = (2*MagkG+4*Magkp*(-log(2)+log(2*Magkp/Magkp+MagkG)))/4*(MagkG-Magkp*log(-Magkp/(MagkG-Magkp))+Magkp*log(Magkp/(MagkG+Magkp))); // TEST
-				//double DF = -Magkp/4*(MagkG-Magkp*log(-Magkp/(MagkG-Magkp))+Magkp*log(Magkp/(MagkG+Magkp))); // TEST
-				//double p  = d_rand[1]*(p_max-p_min) + p_min; //TEST 
+				
+				//finding p values by Newton-Raphson method 	
+				pmin = fmax(pmin,(Magkp-MagkG)/(Magkp+MagkG)); 
+				pmax = fmin(pmax,(Magkp+MagkG)/(Magkp-MagkG));
 
-				//double A   = MagkG - Magkp*log((Magkp+MagkG)/(Magkp-MagkG));
 				double eps = 1e-12;
 				double xr  = d_rand[1];
 				double p = 1;
@@ -362,7 +344,6 @@ int main(int argc, char *argv[])
 				int j = 1;
 
 				for (j = 1; j <= MaxIt; j++) {
-					//pn = p - (Magkp/(p+1) + Magkp*log(p+1) + A*xr - (Magkp+MagkG)/2 - Magkp*log(2*Magkp/(MagkG+Magkp)))/((p*Magkp)/pow((p+1),2));
 					pn = p - ((pmin-p)/((p+1)*(pmin+1)) + log((p+1)/(pmin+1)) - xr*((pmin-pmax)/((pmin+1)*(pmax+1)) + log((pmax+1)/(pmin+1))))/(p/pow((p+1),2));
 					nIt = nIt + 1;
 					if (fabs(pn - p) < eps) {
@@ -373,23 +354,12 @@ int main(int argc, char *argv[])
 
 				p = pn;
 				
-				//fprintf(stderr,"%g , %g\n",delta,p); // TEST
-				//fprintf(stderr,"%g\n",p); // TEST
-
-				//p = 1; // TEST;
-
-				//fprintf(stderr,"p = %g\n",p); // TEST 
-
-				//if (d_rand[2] < 0.5) {
-				//	p = 1/p;
-				//}
-
 
 				k1prime.x = - sin_theta * sqrt((pow(Magkp,2)-pow(MagkG,2)) * (-pow(Magkp,2)*pow(p-1,2)+pow(MagkG,2)*pow(p+1,2)))/(2*MagkG*(p+1));
    				k1prime.y =   cos_theta * sqrt((pow(Magkp,2)-pow(MagkG,2)) * (-pow(Magkp,2)*pow(p-1,2)+pow(MagkG,2)*pow(p+1,2)))/(2*MagkG*(p+1));
     				k1prime.z = (pow((p+1),2)*pow(MagkG,2) + (pow(p,2)-1)*pow(Magkp,2))/(2*MagkG*pow((p+1),2));
 					
-				k2prime.x =   sin_theta * sqrt((pow(Magkp,2)-pow(MagkG,2)) * (-pow(Magkp,2)*pow(p-1,2)+pow(MagkG,2)*pow(p+1,2)))/(2*MagkG*(p+1));
+				k2prime.x =  sin_theta * sqrt((pow(Magkp,2)-pow(MagkG,2)) * (-pow(Magkp,2)*pow(p-1,2)+pow(MagkG,2)*pow(p+1,2)))/(2*MagkG*(p+1));
                                 k2prime.y = - cos_theta * sqrt((pow(Magkp,2)-pow(MagkG,2)) * (-pow(Magkp,2)*pow(p-1,2)+pow(MagkG,2)*pow(p+1,2)))/(2*MagkG*(p+1));
                                 k2prime.z = (pow((p+1),2)*pow(MagkG,2) - (pow(p,2)-1)*pow(Magkp,2))/(2*MagkG*pow((p+1),2));
 
@@ -399,13 +369,13 @@ int main(int argc, char *argv[])
 				
 				kGunitV = unit(kG);					
 
-				k1.x = (pow(kGunitV.y,2)+pow(kGunitV.x,2)*kGunitV.z) /(pow(kGunitV.x,2)+pow(kGunitV.y,2))*k1prime.x + (kGunitV.x*kGunitV.y*(-1+kGunitV.z))/(pow(kGunitV.x,2)+pow(kGunitV.y,2))*k1prime.y - kGunitV.x*k1prime.z;
-				k1.y = (kGunitV.x*kGunitV.y*(-1+kGunitV.z))/(pow(kGunitV.x,2)+pow(kGunitV.y,2))*k1prime.x + (pow(kGunitV.x,2)+pow(kGunitV.y,2)*kGunitV.z) /(pow(kGunitV.x,2)+pow(kGunitV.y,2))*k1prime.y - kGunitV.y*k1prime.z;
-				k1.z = kGunitV.x*k1prime.x + kGunitV.y*k1prime.y + kGunitV.z*k1prime.z;
+				k1.x = (pow(kGunitV.y,2)+pow(kGunitV.x,2)*kGunitV.z) /(pow(kGunitV.x,2)+pow(kGunitV.y,2))*k1prime.x + (kGunitV.x*kGunitV.y*(-1+kGunitV.z))/(pow(kGunitV.x,2)+pow(kGunitV.y,2))*k1prime.y + kGunitV.x*k1prime.z;
+				k1.y = (kGunitV.x*kGunitV.y*(-1+kGunitV.z))/(pow(kGunitV.x,2)+pow(kGunitV.y,2))*k1prime.x + (pow(kGunitV.x,2)+pow(kGunitV.y,2)*kGunitV.z) /(pow(kGunitV.x,2)+pow(kGunitV.y,2))*k1prime.y + kGunitV.y*k1prime.z;
+				k1.z = - kGunitV.x*k1prime.x - kGunitV.y*k1prime.y + kGunitV.z*k1prime.z;
 				
-				k2.x = (pow(kGunitV.y,2)+pow(kGunitV.x,2)*kGunitV.z) /(pow(kGunitV.x,2)+pow(kGunitV.y,2))*k2prime.x + (kGunitV.x*kGunitV.y*(-1+kGunitV.z))/(pow(kGunitV.x,2)+pow(kGunitV.y,2))*k2prime.y - kGunitV.x*k2prime.z;
-                                k2.y = (kGunitV.x*kGunitV.y*(-1+kGunitV.z))/(pow(kGunitV.x,2)+pow(kGunitV.y,2))*k2prime.x + (pow(kGunitV.x,2)+pow(kGunitV.y,2)*kGunitV.z) /(pow(kGunitV.x,2)+pow(kGunitV.y,2))*k2prime.y - kGunitV.y*k2prime.z;
-                                k2.z = kGunitV.x*k2prime.x + kGunitV.y*k2prime.y + kGunitV.z*k2prime.z;
+				k2.x = (pow(kGunitV.y,2)+pow(kGunitV.x,2)*kGunitV.z) /(pow(kGunitV.x,2)+pow(kGunitV.y,2))*k2prime.x + (kGunitV.x*kGunitV.y*(-1+kGunitV.z))/(pow(kGunitV.x,2)+pow(kGunitV.y,2))*k2prime.y + kGunitV.x*k2prime.z;
+                                k2.y = (kGunitV.x*kGunitV.y*(-1+kGunitV.z))/(pow(kGunitV.x,2)+pow(kGunitV.y,2))*k2prime.x + (pow(kGunitV.x,2)+pow(kGunitV.y,2)*kGunitV.z) /(pow(kGunitV.x,2)+pow(kGunitV.y,2))*k2prime.y + kGunitV.y*k2prime.z;
+                                k2.z = - kGunitV.x*k2prime.x - kGunitV.y*k2prime.y + kGunitV.z*k2prime.z;
 
 					
 				lambda1 = 2*PI/magnitude(k1);
