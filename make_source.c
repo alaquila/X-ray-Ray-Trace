@@ -283,8 +283,7 @@ int main(int argc, char *argv[])
 	current.p = base.p;
 	current.l = 0.0;
 	/* loop over all other rays */
-	// increment 2
-	for(i=2; i<=2*N; i+=2) {
+	for(i=1; i<=N; i++) {
 		int n_rand = 7;
 		double *d_rand;
 		current.ray = i + base.ray;
