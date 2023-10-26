@@ -11,7 +11,7 @@ parser.add_argument('-Z', action='store_true', default=False, help='Axis directi
 args = parser.parse_args()
 
 if args.X + args.Y + args.Z != 2:
-	print 'Error you need to select two and only two axis to plot.'
+	print('Error you need to select two and only two axis to plot.')
 	sys.exit()
 
 df =  pd.read_csv(args.infile, parse_dates=True, index_col=0, header=0, sep=', ')

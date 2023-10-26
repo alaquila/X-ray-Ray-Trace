@@ -193,28 +193,15 @@ int main(int argc, char *argv[])
 		
 		if ( m >= 0.0 && m <= 1.0 && n >= 0.0 && n <= 1.0 ) {
 			//in mirror
-			double k, j, theta, VdotN;
 			Vector Out;
-			myRay.v = mult(myRay.v, -1.0);  //Note math easier if I flip my incident ray
-			if(acos(dot(Normal,myRay.v)) > PI/2.0) 
-				Normal = mult(Normal, -1.0); //Normal facing wrong way
 
-			theta = acos(dot(Normal, myRay.v));
+		        Out.x = (1 - 2*pow(Normal.x,2))*myRay.v.x - 2*Normal.x*Normal.y*myRay.v.y - 2*Normal.x*Normal.z*myRay.v.z;
+                        Out.y = - 2*Normal.x*Normal.y*myRay.v.x + (1 - 2*pow(Normal.y,2))*myRay.v.y - 2*Normal.y*Normal.z*myRay.v.z;
+                        Out.z = - 2* Normal.x*Normal.z*myRay.v.x - 2*Normal.y*Normal.z*myRay.v.y + (1 - 2*pow(Normal.z,2))*myRay.v.z;
 
-			VdotN = dot(myRay.v, Normal); //note both unit vectors
-			if (VdotN == 1.0) {
-				//vectors are colinear! Normal reflection!
-				k = 1;
-				j = 0;
-			} else {
-				k = ((cos(2.0*theta)*VdotN)-cos(theta))/(pow(VdotN,2.0) - 1.0);
-				j = cos(2.0*theta) - (k*VdotN);
-
-			} 
-			Out = add(mult(myRay.v,j),mult(Normal,k));
-			Out = unit(Out); // just checking, but needless otherwise math is wrong
-			myRay.v = Out;		
-		} else {
+			myRay.v = Out;
+      
+                } else {
 			myRay.i = 0.0; // ray is outside mirror aperture
 		}
 
