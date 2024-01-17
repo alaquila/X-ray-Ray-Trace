@@ -353,7 +353,7 @@ int main(int argc, char *argv[])
 				b = beta * pow(myRay.w,4);
 				ref = P_frac(myRay.p)*P_reflectivity(1-d, b, theta) +
 				      S_frac(myRay.p)*S_reflectivity(1-d, b, theta);
-				myRay.i = transmit(ref);
+				myRay.i *= transmit(ref);
 				break;
 
 				case CONTINUOUS:
