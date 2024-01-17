@@ -109,7 +109,7 @@ printf(
 "  --seed=<num>            Seed for random number generator for reflectiity binary mode \n"
 "                           (default is current time)\n"
 "  -d, --delta=<num>       Part of the index of refraction (n = 1-delta + i*beta)\n"
-"                            delta is approx: d*lambda^2 default = 3.212E14 (value for silicon)\n"
+"                            delta is approx: d*lambda^2 default = 3.2124E14 (value for silicon)\n"
 "  -b, --beta=<num>        Part of the index of refraction (n = 1-delta + i*beta)\n"
 "                            beta is approx: b*lambda^4 default = 2.66E32 (value for silicon)\n"
 "                            Note: lambda is in [m], approximation for silicon from fitting \n"
@@ -139,8 +139,8 @@ int main(int argc, char *argv[])
 	//reflectivity stuff
 	int seed = time(NULL); //seed for random number
 	int refMode = NONE; //reflectivity mode
-	double delta = 3.212E14;
-	double beta = 2.66E32;
+	double delta = 3.2124889338759969E14;
+	double beta = 2.662818533329684E32;
 
 	/* Long options */
         const struct option longopts[] = {
